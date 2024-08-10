@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "858725286121",
+    "project_id": "notilo",
+    "storage_bucket": "notilo.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:858725286121:android:dda5fe69d9af7eef637078",
+        "android_client_info": {
+          "package_name": "com.example.notilo"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzKgibo7QQfND2jxrKst-mO3uWyPp-gf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:858725286121:android:aa088ae59df46d7e637078",
+        "android_client_info": {
+          "package_name": "com.notilo.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBzKgibo7QQfND2jxrKst-mO3uWyPp-gf0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
