@@ -2,6 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notilo/screens/login_screen.dart';
 
+import 'new_item.dart';
+
 class HomeScreen extends StatelessWidget {
   HomeScreen({super.key});
 
@@ -13,27 +15,30 @@ class HomeScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notilo'),
-      ),
-      body: Center(
-        child: Column(
-          children: [
-            const Text('Welcome to Notilo!'),
-            const SizedBox(height: 20),
-            Text('$userEmail'),
-            const SizedBox(height: 40),
-            ElevatedButton(
-                onPressed: () {
+        actions: [
+          Text('$userEmail'),
+          const SizedBox(width: 10),
+          IconButton(onPressed: () {
                   _auth.signOut();
                   Navigator.pushReplacement(
                       context,
                       MaterialPageRoute(
                         builder: (context) => const LoginScreen(),
                       ));
-                },
-                child: const Text('Sign out'))
+                }, icon: const Icon(Icons.logout_rounded),),
+                
+         
+        ],
+      ),
+      body: const Center(
+        child: Column(
+          children: [
+            Text('No items here, click + to create new one!')
           ],
         ),
+        
       ),
+      floatingActionButton: FloatingActionButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const NewItem())), child: const Icon(Icons.add),),
     );
   }
 }
