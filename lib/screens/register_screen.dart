@@ -16,9 +16,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController emailController = TextEditingController();
   TextEditingController passController = TextEditingController();
+  TextEditingController firstnameController = TextEditingController();
+  TextEditingController lastnameController = TextEditingController();
 
   String _email = "";
   String _password = "";
+  String _firstName = "";
+  String _lastName = "";
 
   // Fungsi untuk memperlihatkan atau menyembunyikan password
   void _toggleObscureText() {
@@ -31,6 +35,10 @@ class _RegisterScreenState extends State<RegisterScreen> {
     try {
       UserCredential userCredential = await _auth
           .createUserWithEmailAndPassword(email: _email, password: _password);
+      User? user = userCredential.user;
+      print("Nama user $user");
+      user?.updateDisplayName(_firstName + _lastName);
+      print("Nama user $user");
       print("Registred user: ${userCredential.user}");
     } catch (e) {
       print("Error: $e");
@@ -63,7 +71,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 const Center(
                   // widget gambar
                   child: SizedBox(
-                    height: 300,
+                    height: 200,
                     child: Icon(Icons.abc_outlined),
                   ),
                 ),
@@ -82,6 +90,65 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     key: _formKey,
                     child: Column(
                       children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            // First Name
+                            Expanded(
+                              child: TextFormField(
+                                controller: firstnameController,
+                                keyboardType: TextInputType.name,
+                                decoration: const InputDecoration(
+                                  contentPadding:
+                                      EdgeInsetsDirectional.symmetric(
+                                          horizontal: 10),
+                                  prefixIcon:
+                                      Icon(Icons.alternate_email_rounded),
+                                  labelText: "First Name",
+                                  hintText: "Enter your first name",
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Please enter your first name";
+                                  }
+                                  return null;
+                                },
+                                onChanged: (value) => setState(
+                                  () {
+                                    _firstName = value;
+                                  },
+                                ),
+                              ),
+                            ),
+                            // Last Name
+                            Expanded(
+                              child: TextFormField(
+                                controller: lastnameController,
+                                keyboardType: TextInputType.name,
+                                decoration: const InputDecoration(
+                                  contentPadding:
+                                      EdgeInsetsDirectional.symmetric(
+                                          horizontal: 10),
+                                  prefixIcon:
+                                      Icon(Icons.alternate_email_rounded),
+                                  labelText: "First Name",
+                                  hintText: "Enter your last name",
+                                ),
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Please enter your last name";
+                                  }
+                                  return null;
+                                },
+                                onChanged: (value) => setState(
+                                  () {
+                                    _lastName = value;
+                                  },
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                         // EMAIL
                         TextFormField(
                           controller: emailController,

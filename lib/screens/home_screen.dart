@@ -11,34 +11,36 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String? userEmail = _auth.currentUser?.email;
+    String? displayName = _auth.currentUser?.displayName;
     return Scaffold(
       appBar: AppBar(
         title: const Text('Notilo'),
         actions: [
-          Text('$userEmail'),
+          Text('$displayName'),
           const SizedBox(width: 10),
-          IconButton(onPressed: () {
-                  _auth.signOut();
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const LoginScreen(),
-                      ));
-                }, icon: const Icon(Icons.logout_rounded),),
-                
-         
+          IconButton(
+            onPressed: () {
+              _auth.signOut();
+              Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const LoginScreen(),
+                  ));
+            },
+            icon: const Icon(Icons.logout_rounded),
+          ),
         ],
       ),
       body: const Center(
         child: Column(
-          children: [
-            Text('No items here, click + to create new one!')
-          ],
+          children: [Text('No items here, click + to create new one!')],
         ),
-        
       ),
-      floatingActionButton: FloatingActionButton(onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const NewItem())), child: const Icon(Icons.add),),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => Navigator.push(
+            context, MaterialPageRoute(builder: (context) => const NewItem())),
+        child: const Icon(Icons.add),
+      ),
     );
   }
 }

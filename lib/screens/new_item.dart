@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notilo/models/notes_model.dart';
 
@@ -16,39 +17,28 @@ class _NewItemState extends State<NewItem> {
   var _enteredTxt = '';
   // var _imgUrl = '';
 
-  Future<void> _saveToFirestore(NotesModel note) async {
-    final notesCollection = FirebaseFirestore.instance.collection('notes');
-    await notesCollection.doc(note.id).set({'title': note.title, 'txt': note.txt, 'createdAt': Timestamp.now()});
-  }
-
-
-
-  void _saveItem() async {
+  Future<void> _saveItem(String id, String title, String txt) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
-      // Navigator.of(context).pop(
-      //   NotesModel(id: DateTime.now().toString(), title: _enteredTitle, txt: _enteredTxt, imageUrl: '', 
-      //   )
-      // );
-
-      final note = NotesModel(
-        id: DateTime.now().toString(),
-        title: _enteredTitle,
-        txt: _enteredTxt,
-        imageUrl: '',
-      );
-      await _saveToFirestore(note);
-      print(note.id);
-      print(note.title);
-      print(note.txt);
-      print(note.imageUrl);
-
-      Navigator.of(context).pop(note);
+      try {
+        User? user = FirebaseAuth.instance.currentUser;
+        String userId = user!.uid;
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userId)
+            .collection('notes')
+            .add({
+          'id': Timestamp.now().toString(),
+          'title': _enteredTitle,
+          'txt': _enteredTxt,
+          'createdAt': Timestamp.now(),
+        });
+        Navigator.of(context).pop(); // Menutup form setelah data disimpan
+      } catch (e) {
+        print('Error saving to Firestore: $e');
+      }
     }
   }
-
-  
-
 
   void _resetItem() {
     _formKey.currentState!.reset();
@@ -79,11 +69,12 @@ class _NewItemState extends State<NewItem> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                'Add a new note',
-                style: Theme.of(context).textTheme.titleLarge,
-              ),
-              
-              IconButton(onPressed: (){}, icon: const Icon(Icons.upload_file_rounded)),
+                    'Add a new note',
+                    style: Theme.of(context).textTheme.titleLarge,
+                  ),
+                  IconButton(
+                      onPressed: () {},
+                      icon: const Icon(Icons.upload_file_rounded)),
                 ],
               ),
 
@@ -110,11 +101,15 @@ class _NewItemState extends State<NewItem> {
 
                   return null;
                 },
-                onSaved: (newValue) => _enteredTitle = newValue!,
+                // onSaved: (newValue) => _enteredTitle = newValue!,
+                onSaved: (newValue) {
+                  _enteredTitle = newValue!;
+                  print(_enteredTitle);
+                },
               ),
               const SizedBox(height: 20),
               // TEXT
-               TextFormField(
+              TextFormField(
                 // maxLength: 50,
                 decoration: InputDecoration(
                   filled: true,
@@ -135,10 +130,14 @@ class _NewItemState extends State<NewItem> {
 
                   return null;
                 },
-                onSaved: (newValue) => _enteredTitle = newValue!,
+                // onSaved: (newValue) => _enteredTxt = newValue!,
+                onSaved: (newValue) {
+                  _enteredTxt = newValue!;
+                  print(_enteredTxt);
+                },
               ),
               const SizedBox(height: 20),
-              
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
@@ -147,7 +146,10 @@ class _NewItemState extends State<NewItem> {
                     child: const Text('Reset'),
                   ),
                   ElevatedButton(
-                    onPressed: _saveItem,
+                    onPressed: () {
+                      _saveItem(Timestamp.now().toString(), _enteredTitle,
+                          _enteredTxt);
+                    },
                     child: const Text('Submit'),
                   )
                 ],
