@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notilo/config/app_config.dart';
+import 'package:notilo/screens/detail_screen.dart';
 import 'package:notilo/screens/login_screen.dart';
 
 import 'new_item.dart';
@@ -66,10 +67,25 @@ class _HomeScreenState extends State<HomeScreen> {
               final note = notesDocs[index];
               DateTime dateTime = note['createdAt'].toDate();
 
-              return ListTile(
-                title: Text(note['title']),
-                subtitle: Text(note['txt']),
-                trailing: Text(dateTime.toString()),
+              void gotToDetailScreen() {
+                Navigator.of(context).push(MaterialPageRoute(
+                  builder: (context) => DetailScreen(
+                    title: note['title'],
+                    txt: note['txt'],
+                  ),
+                ));
+              }
+
+              return Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: InkWell(
+                  child: ListTile(
+                    title: Text(note['title']),
+                    subtitle: Text(note['txt']),
+                    trailing: Text(dateTime.toString()),
+                    onTap: gotToDetailScreen,
+                  ),
+                ),
               );
             },
           );
