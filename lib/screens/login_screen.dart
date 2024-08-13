@@ -1,5 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:notilo/config/app_config.dart';
+import 'package:notilo/main_dev.dart';
 import 'package:notilo/screens/home_screen.dart';
 
 import 'register_screen.dart';
@@ -12,7 +15,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Variabel untuk menentukan apakah password sedang ditampilkan atau tidak
   bool _obscureText = true;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
@@ -22,6 +24,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String _email = "";
   String _password = "";
+
+  void _goToHomeScreen() {
+    Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ));
+  }
+
+  void _autoLogin() async {
+    await _auth.signInWithEmailAndPassword(
+        email: 'ianmadiana@gmail.com', password: '28021998');
+    _goToHomeScreen();
+  }
 
   // Fungsi untuk memperlihatkan atau menyembunyikan password
   void _toggleObscureText() {
@@ -34,14 +50,14 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       UserCredential userCredential = await _auth.signInWithEmailAndPassword(
           email: _email, password: _password);
-      print("Login user: ${userCredential.user}");
-      Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (context) => HomeScreen(),
-          ));
+      if (kDebugMode) {
+        print("Login user: ${userCredential.user}");
+      }
+      _goToHomeScreen();
     } catch (e) {
-      print("Error: $e");
+      if (kDebugMode) {
+        print("Error: $e");
+      }
     }
   }
 
@@ -53,9 +69,9 @@ class _LoginScreenState extends State<LoginScreen> {
         appBar: AppBar(
           centerTitle: true,
           // widget text untuk menampilkan teks
-          title: const Text(
-            "Notilo",
-            style: TextStyle(color: Colors.black),
+          title: Text(
+            AppConfig.shared.appName,
+            style: const TextStyle(color: Colors.black),
           ),
           elevation: 0,
           backgroundColor: Colors.white,
@@ -63,15 +79,14 @@ class _LoginScreenState extends State<LoginScreen> {
         // widget listview agar halaman bisa di-scroll
         body: ListView(
           children: [
-            // widget kolom untuk membungkus gambar dan input text email dan password
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Center(
+                Center(
                   // widget gambar
                   child: SizedBox(
-                    height: 300,
+                    height: MediaQuery.of(context).size.height * 0.2,
                     child: Icon(Icons.abc_outlined),
                   ),
                 ),
@@ -85,7 +100,6 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20),
-                  // widget textfield untuk memasukkan input email
                   child: Form(
                     key: _formKey,
                     child: Column(
@@ -113,10 +127,12 @@ class _LoginScreenState extends State<LoginScreen> {
                             },
                           ),
                         ),
+                        const SizedBox(height: 20),
                         // PASSWORD
                         TextFormField(
                           controller: passController,
-                          keyboardType: TextInputType.emailAddress,
+                          keyboardType: TextInputType.text,
+                          obscureText: _obscureText,
                           decoration: InputDecoration(
                             contentPadding:
                                 const EdgeInsetsDirectional.symmetric(
@@ -146,36 +162,61 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                         const SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            if (_formKey.currentState!.validate()) {
-                              _signIn();
-                            }
-                          },
-                          child: Text(
-                            "Sign In",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[800],
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          child: ElevatedButton(
+                            style: ButtonStyle(
+                              backgroundColor: WidgetStateProperty.all(
+                                  Theme.of(context).primaryColor),
+                            ),
+                            onPressed: () {
+                              // if (AppConfig.shared.flavor == Flavor.dev) {
+                              //   _autoLogin();
+                              // } else if (AppConfig.shared.flavor ==
+                              //     Flavor.prod) {
+                              //   if (_formKey.currentState!.validate()) {
+                              //     _signIn();
+                              //   }
+                              // }
+
+                              if (AppConfig.shared.flavor == Flavor.dev) {
+                                _autoLogin();
+                              } else if (AppConfig.shared.flavor ==
+                                  Flavor.prod) {
+                                if (_formKey.currentState!.validate()) {
+                                  _signIn();
+                                }
+                              }
+                            },
+                            child: const Text(
+                              "Sign In",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
-                        SizedBox(height: 20),
-                        ElevatedButton(
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const RegisterScreen(),
-                                ));
-                          },
-                          child: Text(
-                            "Register",
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[800],
+                        const SizedBox(height: 5),
+                        SizedBox(
+                          width: MediaQuery.of(context).size.width,
+                          child: ElevatedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const RegisterScreen(),
+                                  ));
+                            },
+                            child: Text(
+                              "Register",
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Theme.of(context).colorScheme.primary,
+                              ),
                             ),
                           ),
                         )

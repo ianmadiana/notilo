@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:notilo/models/notes_model.dart';
 
@@ -17,7 +18,7 @@ class _NewItemState extends State<NewItem> {
   var _enteredTxt = '';
   // var _imgUrl = '';
 
-  Future<void> _saveItem(String id, String title, String txt) async {
+  Future<void> _saveItem(NotesModel note) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       try {
@@ -60,8 +61,7 @@ class _NewItemState extends State<NewItem> {
         padding: const EdgeInsets.all(20),
         child: Form(
           key: _formKey,
-          autovalidateMode: AutovalidateMode
-              .onUserInteraction, // Set autovalidateMode ke onUserInteraction
+          autovalidateMode: AutovalidateMode.onUserInteraction,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -104,7 +104,9 @@ class _NewItemState extends State<NewItem> {
                 // onSaved: (newValue) => _enteredTitle = newValue!,
                 onSaved: (newValue) {
                   _enteredTitle = newValue!;
-                  print(_enteredTitle);
+                  if (kDebugMode) {
+                    print(_enteredTitle);
+                  }
                 },
               ),
               const SizedBox(height: 20),
@@ -133,7 +135,9 @@ class _NewItemState extends State<NewItem> {
                 // onSaved: (newValue) => _enteredTxt = newValue!,
                 onSaved: (newValue) {
                   _enteredTxt = newValue!;
-                  print(_enteredTxt);
+                  if (kDebugMode) {
+                    print(_enteredTxt);
+                  }
                 },
               ),
               const SizedBox(height: 20),
@@ -147,8 +151,11 @@ class _NewItemState extends State<NewItem> {
                   ),
                   ElevatedButton(
                     onPressed: () {
-                      _saveItem(Timestamp.now().toString(), _enteredTitle,
-                          _enteredTxt);
+                      _saveItem(NotesModel(
+                          id: DateTime.now().toString(),
+                          title: _enteredTitle,
+                          txt: _enteredTitle,
+                          imageUrl: ''));
                     },
                     child: const Text('Submit'),
                   )
