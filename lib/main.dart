@@ -9,7 +9,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   AppConfig.create(
-      appName: "Notilo", primaryColor: Colors.blue, flavor: Flavor.prod);
+    appName: "Notilo",
+    primaryColor: Colors.blue,
+    flavor: Flavor.prod,
+  );
   runApp(const MyApp());
 }
 

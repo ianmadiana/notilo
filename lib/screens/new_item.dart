@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -27,21 +28,7 @@ class _NewItemState extends State<NewItem> {
   final ImagePicker _picker = ImagePicker();
   File? _imageFile;
   File? _cameraFile;
-
-  Future<void> _pickImage() async {
-    final pickedImage = await _picker.pickImage(source: ImageSource.gallery);
-    // final pickedCamera = await _picker.pickImage(source: ImageSource.camera);
-    if (pickedImage != null) {
-      setState(() {
-        _imageFile = File(pickedImage.path);
-        // _cameraFile = File(pickedCamera!.path);
-        if (kDebugMode) {
-          print('Gambar: $_imageFile');
-          // print('Gambar: $_cameraFile');
-        }
-      });
-    }
-  }
+  Uint8List? _webImageBytes;
 
   Future<void> _saveItem(NotesModel note) async {
     if (_formKey.currentState!.validate()) {
@@ -68,6 +55,90 @@ class _NewItemState extends State<NewItem> {
 
   void _resetItem() {
     _formKey.currentState!.reset();
+  }
+
+  void _handleFileUpload() async {
+    if (kIsWeb) {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.any,
+        allowMultiple: false,
+      );
+      if (result != null) {
+        try {
+          setState(() {
+            _webImageBytes = result.files.first.bytes;
+          });
+        } catch (e) {
+          if (kDebugMode) {
+            print("ERROR WEB: $e");
+          }
+        }
+        // print(file);
+      }
+    } else if (Platform.isAndroid) {
+      final pickedImage = await _picker.pickImage(source: ImageSource.gallery);
+      // final pickedCamera = await _picker.pickImage(source: ImageSource.camera);
+      if (pickedImage != null) {
+        try {
+          setState(() {
+            _imageFile = File(pickedImage.path);
+            // _cameraFile = File(pickedCamera!.path);
+            if (kDebugMode) {
+              print('Gambar: $_imageFile');
+              // print('Gambar: $_cameraFile');
+            }
+          });
+        } catch (e) {
+          if (kDebugMode) {
+            print("ERROR ANDROID: $e");
+          }
+        }
+      }
+    } else {
+      if (kDebugMode) {
+        print("Unsupported platform");
+      }
+    }
+  }
+
+  _showImage() {
+    if (kIsWeb) {
+      return _webImageBytes == null
+          ? const SizedBox(child: Text('Image here'))
+          : Column(
+              children: [
+                Image.memory(_webImageBytes!),
+                const SizedBox(height: 5),
+                IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _webImageBytes = null;
+                      });
+                    },
+                    icon: const Icon(Icons.delete))
+              ],
+            );
+    } else if (Platform.isAndroid) {
+      return _imageFile == null || _imageFile!.path.isEmpty
+          ? const SizedBox(child: Text('Image here'))
+          : Column(
+              children: [
+                Image.file(_imageFile!),
+                const SizedBox(height: 5),
+                IconButton(
+                    onPressed: () async {
+                      await _imageFile!.delete();
+                      setState(() {
+                        _imageFile = null;
+                      });
+                    },
+                    icon: const Icon(Icons.delete))
+              ],
+            );
+    } else {
+      return const SizedBox(
+          child: Text('Image display not supported on this platform'));
+    }
   }
 
   @override
@@ -99,38 +170,14 @@ class _NewItemState extends State<NewItem> {
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
                     IconButton(
-                        onPressed: () async {
-                          if (kIsWeb) {
-                            FilePickerResult? result = await FilePicker.platform
-                                .pickFiles(type: FileType.image);
-                            if (result != null) {
-                              PlatformFile file = result.files.first;
-                              // print(file);
-                            }
-                          } else {
-                            _pickImage();
-                          }
+                        onPressed: () {
+                          _handleFileUpload();
                         },
                         icon: const Icon(Icons.upload_file_rounded)),
                   ],
                 ),
 
-                _imageFile == null || _imageFile!.path.isEmpty
-                    ? SizedBox(child: Text('Image here'))
-                    : Column(
-                        children: [
-                          Image.file(_imageFile!),
-                          SizedBox(height: 5),
-                          IconButton(
-                              onPressed: () async {
-                                await _imageFile!.delete();
-                                setState(() {
-                                  _imageFile = null;
-                                });
-                              },
-                              icon: Icon(Icons.delete))
-                        ],
-                      ),
+                _showImage(),
 
                 const SizedBox(height: 20),
                 // TITLE

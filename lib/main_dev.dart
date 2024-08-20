@@ -18,10 +18,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: true,
-      theme: ThemeData(primarySwatch: AppConfig.shared.primaryColor),
-      home: const LoginScreen(),
+      home: LoginScreen(),
     );
   }
 }
