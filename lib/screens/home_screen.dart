@@ -72,6 +72,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context) => DetailScreen(
                     title: note['title'],
                     txt: note['txt'],
+                    imageUrl: note['imageUrl'],
                   ),
                 ));
               }

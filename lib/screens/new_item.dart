@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -30,12 +29,45 @@ class _NewItemState extends State<NewItem> {
   File? _cameraFile;
   Uint8List? _webImageBytes;
 
+  // Future<void> _saveItem(NotesModel note) async {
+  //   if (_formKey.currentState!.validate()) {
+  //     _formKey.currentState!.save();
+  //     try {
+  //       User? user = FirebaseAuth.instance.currentUser;
+  //       String userId = user!.uid;
+  //       await FirebaseFirestore.instance
+  //           .collection('users')
+  //           .doc(userId)
+  //           .collection('notes')
+  //           .add({
+  //         'id': Timestamp.now().toString(),
+  //         'title': _enteredTitle,
+  //         'txt': _enteredTxt,
+  //         'createdAt': Timestamp.now(),
+  //       });
+  //       Navigator.of(context).pop(); // Menutup form setelah data disimpan
+  //     } catch (e) {
+  //       print('Error saving to Firestore: $e');
+  //     }
+  //   }
+  // }
+
   Future<void> _saveItem(NotesModel note) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
       try {
         User? user = FirebaseAuth.instance.currentUser;
         String userId = user!.uid;
+
+        // Upload image to Firebase Storage
+        String imageUrl = '';
+        if (_imageFile != null || _webImageBytes != null) {
+          String fileName =
+              '${user.uid}_${DateTime.now().millisecondsSinceEpoch}.png';
+          imageUrl = await _uploadImageToFirebase(fileName);
+        }
+
+        // Save note with image URL to Firestore
         await FirebaseFirestore.instance
             .collection('users')
             .doc(userId)
@@ -44,8 +76,10 @@ class _NewItemState extends State<NewItem> {
           'id': Timestamp.now().toString(),
           'title': _enteredTitle,
           'txt': _enteredTxt,
+          'imageUrl': imageUrl,
           'createdAt': Timestamp.now(),
         });
+
         Navigator.of(context).pop(); // Menutup form setelah data disimpan
       } catch (e) {
         print('Error saving to Firestore: $e');
@@ -139,6 +173,29 @@ class _NewItemState extends State<NewItem> {
       return const SizedBox(
           child: Text('Image display not supported on this platform'));
     }
+  }
+
+  Future<String> _uploadImageToFirebase(String fileName) async {
+    String downloadURL = '';
+    try {
+      Reference ref = _storage.ref().child('images/$fileName');
+      UploadTask uploadTask;
+
+      if (kIsWeb) {
+        uploadTask = ref.putData(_webImageBytes!);
+      } else if (Platform.isAndroid) {
+        uploadTask = ref.putFile(_imageFile!);
+      } else {
+        throw Exception("Unsupported platform");
+      }
+
+      TaskSnapshot snapshot = await uploadTask;
+      downloadURL = await snapshot.ref.getDownloadURL();
+    } catch (e) {
+      print("Error uploading image: $e");
+    }
+
+    return downloadURL;
   }
 
   @override
