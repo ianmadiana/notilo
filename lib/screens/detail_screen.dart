@@ -1,4 +1,8 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_network/image_network.dart';
 
 class DetailScreen extends StatelessWidget {
   const DetailScreen(
@@ -10,6 +14,30 @@ class DetailScreen extends StatelessWidget {
   final String title;
   final String txt;
   final String imageUrl;
+
+  _handleImagePlatform() {
+    if (imageUrl.isNotEmpty) {
+      if (kIsWeb) {
+        return ImageNetwork(
+          image: imageUrl,
+          height: 200,
+          width: 200,
+          onLoading: const CircularProgressIndicator(
+            color: Colors.indigoAccent,
+          ),
+          onError: const Icon(
+            Icons.error,
+            color: Colors.red,
+          ),
+        );
+      } else if (Platform.isAndroid) {
+        return Image.network(imageUrl);
+      } else {
+        return const Text('Image display not supported on this platform');
+      }
+    }
+    return const SizedBox();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +51,8 @@ class DetailScreen extends StatelessWidget {
           child: Center(
             child: Column(
               children: [
-                Image.network(imageUrl),
+                _handleImagePlatform(),
+                const SizedBox(height: 20),
                 Text(title),
                 const SizedBox(height: 20),
                 Text(txt),

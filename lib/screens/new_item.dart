@@ -19,39 +19,17 @@ class NewItem extends StatefulWidget {
 class _NewItemState extends State<NewItem> {
   final _formKey = GlobalKey<FormState>();
 
-  var _enteredTitle = '';
-  var _enteredTxt = '';
-  // var _imgUrl = '';
+  String _enteredTitle = '';
+  String _enteredNote = '';
+  String imageUrl = '';
 
   final FirebaseStorage _storage = FirebaseStorage.instance;
   final ImagePicker _picker = ImagePicker();
   File? _imageFile;
-  File? _cameraFile;
+  // File? _cameraFile;
   Uint8List? _webImageBytes;
 
-  // Future<void> _saveItem(NotesModel note) async {
-  //   if (_formKey.currentState!.validate()) {
-  //     _formKey.currentState!.save();
-  //     try {
-  //       User? user = FirebaseAuth.instance.currentUser;
-  //       String userId = user!.uid;
-  //       await FirebaseFirestore.instance
-  //           .collection('users')
-  //           .doc(userId)
-  //           .collection('notes')
-  //           .add({
-  //         'id': Timestamp.now().toString(),
-  //         'title': _enteredTitle,
-  //         'txt': _enteredTxt,
-  //         'createdAt': Timestamp.now(),
-  //       });
-  //       Navigator.of(context).pop(); // Menutup form setelah data disimpan
-  //     } catch (e) {
-  //       print('Error saving to Firestore: $e');
-  //     }
-  //   }
-  // }
-
+  // SIMPAN DATA FORM KE FIREBASE
   Future<void> _saveItem(NotesModel note) async {
     if (_formKey.currentState!.validate()) {
       _formKey.currentState!.save();
@@ -59,15 +37,12 @@ class _NewItemState extends State<NewItem> {
         User? user = FirebaseAuth.instance.currentUser;
         String userId = user!.uid;
 
-        // Upload image to Firebase Storage
-        String imageUrl = '';
         if (_imageFile != null || _webImageBytes != null) {
           String fileName =
               '${user.uid}_${DateTime.now().millisecondsSinceEpoch}.png';
           imageUrl = await _uploadImageToFirebase(fileName);
         }
 
-        // Save note with image URL to Firestore
         await FirebaseFirestore.instance
             .collection('users')
             .doc(userId)
@@ -75,7 +50,7 @@ class _NewItemState extends State<NewItem> {
             .add({
           'id': Timestamp.now().toString(),
           'title': _enteredTitle,
-          'txt': _enteredTxt,
+          'note': _enteredNote,
           'imageUrl': imageUrl,
           'createdAt': Timestamp.now(),
         });
@@ -91,6 +66,7 @@ class _NewItemState extends State<NewItem> {
     _formKey.currentState!.reset();
   }
 
+  // HANDLE UPLOAD IMAGE ACCORDING TO PLATFORM
   void _handleFileUpload() async {
     if (kIsWeb) {
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -135,7 +111,8 @@ class _NewItemState extends State<NewItem> {
     }
   }
 
-  _showImage() {
+  // SHOW IMAGE PREVIEW
+  _imagePreview() {
     if (kIsWeb) {
       return _webImageBytes == null
           ? const SizedBox(child: Text('Image here'))
@@ -175,6 +152,7 @@ class _NewItemState extends State<NewItem> {
     }
   }
 
+  // UPLOAD IMAGE TO FIREBASE STORAGE
   Future<String> _uploadImageToFirebase(String fileName) async {
     String downloadURL = '';
     try {
@@ -234,12 +212,11 @@ class _NewItemState extends State<NewItem> {
                   ],
                 ),
 
-                _showImage(),
+                _imagePreview(),
 
                 const SizedBox(height: 20),
                 // TITLE
                 TextFormField(
-                  // maxLength: 50,
                   decoration: InputDecoration(
                     filled: true,
                     hintText: 'Input title here...',
@@ -262,9 +239,6 @@ class _NewItemState extends State<NewItem> {
                   // onSaved: (newValue) => _enteredTitle = newValue!,
                   onSaved: (newValue) {
                     _enteredTitle = newValue!;
-                    if (kDebugMode) {
-                      print(_enteredTitle);
-                    }
                   },
                 ),
                 const SizedBox(height: 20),
@@ -290,11 +264,11 @@ class _NewItemState extends State<NewItem> {
 
                     return null;
                   },
-                  // onSaved: (newValue) => _enteredTxt = newValue!,
+                  // onSaved: (newValue) => _enteredNote = newValue!,
                   onSaved: (newValue) {
-                    _enteredTxt = newValue!;
+                    _enteredNote = newValue!;
                     if (kDebugMode) {
-                      print(_enteredTxt);
+                      print(_enteredNote);
                     }
                   },
                 ),
@@ -309,11 +283,13 @@ class _NewItemState extends State<NewItem> {
                     ),
                     ElevatedButton(
                       onPressed: () {
-                        _saveItem(NotesModel(
-                            id: DateTime.now().toString(),
-                            title: _enteredTitle,
-                            txt: _enteredTitle,
-                            imageUrl: ''));
+                        _saveItem(
+                          NotesModel(
+                              id: DateTime.now().toString(),
+                              title: _enteredTitle,
+                              txt: _enteredTitle,
+                              imageUrl: imageUrl),
+                        );
                       },
                       child: const Text('Submit'),
                     )
