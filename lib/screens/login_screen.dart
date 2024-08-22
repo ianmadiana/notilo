@@ -101,6 +101,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Padding(
                   padding: const EdgeInsets.all(20),
                   child: Form(
+                    autovalidateMode: AutovalidateMode.onUnfocus,
                     key: _formKey,
                     child: Column(
                       children: [
@@ -149,12 +150,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               onPressed: _toggleObscureText,
                             ),
                           ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter your password";
-                            }
-                            return null;
-                          },
+                          validator: (value) => value!.isEmpty
+                              ? "Please enter your password"
+                              : null,
                           onChanged: (value) => setState(
                             () {
                               _password = value;
@@ -179,14 +177,11 @@ class _LoginScreenState extends State<LoginScreen> {
                               //   }
                               // }
 
-                              if (AppConfig.shared.flavor == Flavor.dev) {
-                                _autoLogin();
-                              } else if (AppConfig.shared.flavor ==
-                                  Flavor.prod) {
-                                if (_formKey.currentState!.validate()) {
-                                  _signIn();
-                                }
-                              }
+                              AppConfig.shared.flavor == Flavor.dev
+                                  ? _autoLogin()
+                                  : _signIn();
+
+                              // s
                             },
                             child: const Text(
                               "Sign In",

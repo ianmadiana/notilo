@@ -1,14 +1,15 @@
 class NotesModel {
-
   NotesModel({
     required this.id,
     required this.title,
-    required this.txt,
+    required this.note,
     required this.imageUrl,
+    required this.createdAt,
   });
-  
+
   final String id;
   final String title;
-  final String txt;
+  final String note;
   final String imageUrl;
+  final DateTime createdAt;
 }

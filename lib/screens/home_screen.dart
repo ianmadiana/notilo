@@ -2,9 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notilo/config/app_config.dart';
-import 'package:notilo/screens/detail_screen.dart';
 import 'package:notilo/screens/login_screen.dart';
 
+import '../widgets/notes_list.dart';
 import 'new_item.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -22,6 +22,8 @@ class _HomeScreenState extends State<HomeScreen> {
     String? displayName = _auth.currentUser?.displayName;
     User? user = FirebaseAuth.instance.currentUser;
     String userId = user!.uid;
+    double width = MediaQuery.of(context).size.width.toDouble();
+    double height = MediaQuery.of(context).size.width.toDouble();
     return Scaffold(
       appBar: AppBar(
         title: Text(AppConfig.shared.appName),
@@ -61,34 +63,12 @@ class _HomeScreenState extends State<HomeScreen> {
           }
           final notesDocs = snapshot.data!.docs;
 
-          return ListView.builder(
-            itemCount: notesDocs.length,
-            itemBuilder: (context, index) {
-              final note = notesDocs[index];
-              DateTime dateTime = note['createdAt'].toDate();
-
-              void gotToDetailScreen() {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => DetailScreen(
-                    title: note['title'],
-                    txt: note['txt'],
-                    imageUrl: note['imageUrl'],
-                  ),
-                ));
-              }
-
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 10),
-                child: InkWell(
-                  child: ListTile(
-                    title: Text(note['title']),
-                    subtitle: Text(note['txt']),
-                    trailing: Text(dateTime.toString()),
-                    onTap: gotToDetailScreen,
-                  ),
-                ),
-              );
-            },
+          return NotesList(
+            notesDocs: notesDocs,
+            // imgUrl: notesDocs[0]['imageUrl'],
+            height: height,
+            width: width,
+            userId: userId,
           );
         },
       ),

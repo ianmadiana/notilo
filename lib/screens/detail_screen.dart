@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_network/image_network.dart';
@@ -9,32 +7,37 @@ class DetailScreen extends StatelessWidget {
       {super.key,
       required this.title,
       required this.txt,
-      required this.imageUrl});
+      required this.imageUrl,
+      required this.height,
+      required this.width});
 
   final String title;
   final String txt;
   final String imageUrl;
+  final double height;
+  final double width;
 
-  _handleImagePlatform() {
+  handleImagePlatform(
+      String imageUrl, double width, double height, Icon icon, Color color) {
     if (imageUrl.isNotEmpty) {
-      if (kIsWeb) {
-        return ImageNetwork(
-          image: imageUrl,
-          height: 200,
-          width: 200,
-          onLoading: const CircularProgressIndicator(
-            color: Colors.indigoAccent,
-          ),
-          onError: const Icon(
-            Icons.error,
-            color: Colors.red,
-          ),
-        );
-      } else if (Platform.isAndroid) {
-        return Image.network(imageUrl);
-      } else {
-        return const Text('Image display not supported on this platform');
-      }
+      return kIsWeb
+          ? ImageNetwork(
+              fitWeb: BoxFitWeb.contain,
+              image: imageUrl,
+              height: 200,
+              width: width,
+              onLoading: const CircularProgressIndicator(
+                color: Colors.indigoAccent,
+              ),
+              onError: const Icon(
+                Icons.error,
+                color: Colors.red,
+              ),
+            )
+          : Image.network(
+              imageUrl,
+              fit: BoxFit.contain,
+            );
     }
     return const SizedBox();
   }
@@ -51,7 +54,13 @@ class DetailScreen extends StatelessWidget {
           child: Center(
             child: Column(
               children: [
-                _handleImagePlatform(),
+                handleImagePlatform(
+                  imageUrl,
+                  width,
+                  height,
+                  const Icon(Icons.error),
+                  Colors.red,
+                ),
                 const SizedBox(height: 20),
                 Text(title),
                 const SizedBox(height: 20),
