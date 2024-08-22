@@ -40,10 +40,6 @@ class _NotesListState extends State<NotesList> {
               onLoading: const CircularProgressIndicator(
                 color: Colors.indigoAccent,
               ),
-              onError: const Icon(
-                Icons.error,
-                color: Colors.red,
-              ),
             ),
           )
         : Container();
@@ -56,9 +52,8 @@ class _NotesListState extends State<NotesList> {
       itemBuilder: (context, index) {
         final note = widget.notesDocs[index];
         // final createdAt = note['createdAt'].toDate();
-        final imageUrl = note['imageUrl'];
+        final String imageUrl = note['imageUrl'];
         // String fileName = note['id'];
-
         void gotToDetailScreen() {
           Navigator.of(context).push(MaterialPageRoute(
             builder: (context) => DetailScreen(
@@ -76,25 +71,32 @@ class _NotesListState extends State<NotesList> {
           direction: DismissDirection.endToStart,
           onDismissed: (direction) async {
             try {
-              // Remove the document from Firestore
+              // remove document from Firestore
               await FirebaseFirestore.instance
                   .collection('users')
                   .doc(widget.userId)
                   .collection('notes')
                   .doc(note.id)
                   .delete();
-              // remove image in firestore storage
-              Reference ref = _storage.refFromURL(imageUrl);
-              await ref.delete();
+
+              // remove image from firebase storage
+              if (imageUrl.isNotEmpty &&
+                  (imageUrl.startsWith('gs://') ||
+                      imageUrl.startsWith('https://'))) {
+                final ref = FirebaseStorage.instance.refFromURL(imageUrl);
+                await ref.delete();
+              }
 
               // is mounted
               if (!context.mounted) return;
 
               // Remove the item locally
-              widget.notesDocs.removeAt(index);
+              if (widget.notesDocs.length < index) {
+                widget.notesDocs.removeAt(index);
+              }
 
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('${note['title']} deleted')),
+                const SnackBar(content: Text('Note deleted')),
               );
             } catch (e) {
               print(e);
