@@ -28,6 +28,7 @@ class _NewItemState extends State<NewItem> {
   File? _imageFile;
   // File? _cameraFile;
   Uint8List? _webImageBytes;
+  late String _fileName;
 
   // SIMPAN DATA FORM KE FIREBASE
   Future<void> _saveItem(NotesModel note) async {
@@ -64,6 +65,12 @@ class _NewItemState extends State<NewItem> {
 
   void _resetItem() {
     _formKey.currentState!.reset();
+
+    setState(() {
+      _webImageBytes = null;
+      _imageFile = null;
+    });
+    // _cameraFile = null;
   }
 
   // HANDLE UPLOAD IMAGE ACCORDING TO PLATFORM
@@ -77,6 +84,7 @@ class _NewItemState extends State<NewItem> {
         try {
           setState(() {
             _webImageBytes = result.files.first.bytes;
+            _fileName = result.names.toString();
           });
         } catch (e) {
           if (kDebugMode) {
@@ -116,19 +124,64 @@ class _NewItemState extends State<NewItem> {
     if (kIsWeb) {
       return _webImageBytes == null
           ? const SizedBox(child: Text('Image here'))
-          : Column(
-              children: [
-                Image.memory(_webImageBytes!),
-                const SizedBox(height: 5),
-                IconButton(
-                    onPressed: () {
-                      setState(() {
-                        _webImageBytes = null;
-                      });
-                    },
-                    icon: const Icon(Icons.delete))
-              ],
+          : Card(
+              child: Column(
+                children: [
+                  Image.memory(_webImageBytes!),
+                  const SizedBox(height: 5),
+                  Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(_fileName.replaceAll('[', '').replaceAll(']', '')),
+                        IconButton(
+                            onPressed: () {
+                              setState(() {
+                                _webImageBytes = null;
+                              });
+                            },
+                            icon: const Icon(
+                              Icons.delete,
+                              color: Colors.black,
+                            ))
+                      ],
+                    ),
+                  )
+                ],
+              ),
             );
+
+      // Stack(
+      //     alignment: AlignmentDirectional.bottomEnd,
+      //     children: [
+      //       Image.memory(_webImageBytes!),
+      //       IconButton(
+      //           onPressed: () {
+      //             setState(() {
+      //               _webImageBytes = null;
+      //             });
+      //           },
+      //           icon: const Icon(
+      //             Icons.delete,
+      //             color: Colors.black,
+      //           ))
+      //     ],
+      //   );
+
+      // Column(
+      //     children: [
+      //       Image.memory(_webImageBytes!),
+      //       const SizedBox(height: 5),
+      //       IconButton(
+      //           onPressed: () {
+      //             setState(() {
+      //               _webImageBytes = null;
+      //             });
+      //           },
+      //           icon: const Icon(Icons.delete))
+      //     ],
+      //   );
     } else if (Platform.isAndroid) {
       return _imageFile == null || _imageFile!.path.isEmpty
           ? const SizedBox(child: Text('Image here'))
@@ -226,10 +279,11 @@ class _NewItemState extends State<NewItem> {
                     ),
                   ),
                   validator: (value) {
-                    if (value == null ||
-                        value.isEmpty ||
-                        value.trim().length <= 1 ||
-                        value.trim().length > 50) {
+                    if (
+                        // value == null ||
+                        //   value.isEmpty ||
+                        //   value.trim().length <= 1 ||
+                        value!.trim().length > 50) {
                       // return 'Must be between 1 and 50 characters';
                       return 'Must be between 1 and 50 characters';
                     }
@@ -245,6 +299,7 @@ class _NewItemState extends State<NewItem> {
                 // TEXT
                 TextFormField(
                   // maxLength: 50,
+                  maxLines: null,
                   decoration: InputDecoration(
                     filled: true,
                     hintText: 'Input notes here...',
@@ -253,17 +308,17 @@ class _NewItemState extends State<NewItem> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  validator: (value) {
-                    if (value == null ||
-                        value.isEmpty ||
-                        value.trim().length <= 1 ||
-                        value.trim().length > 50) {
-                      // return 'Must be between 1 and 50 characters';
-                      return 'Must be between 1 and 50 characters';
-                    }
+                  // validator: (value) {
+                  //   if (value == null ||
+                  //       value.isEmpty ||
+                  //       value.trim().length <= 1 ||
+                  //       value.trim().length > 50) {
+                  //     // return 'Must be between 1 and 50 characters';
+                  //     return 'Must be between 1 and 50 characters';
+                  //   }
 
-                    return null;
-                  },
+                  //   return null;
+                  // },
                   // onSaved: (newValue) => _enteredNote = newValue!,
                   onSaved: (newValue) {
                     _enteredNote = newValue!;

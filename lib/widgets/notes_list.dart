@@ -138,8 +138,11 @@ class _NotesListState extends State<NotesList> {
                           Text(note['title'],
                               style: Theme.of(context).textTheme.headlineSmall),
                           const SizedBox(height: 5),
-                          Text(note['note'],
-                              style: Theme.of(context).textTheme.bodyMedium),
+                          Text(
+                            note['note'],
+                            style: Theme.of(context).textTheme.bodyMedium,
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
                       ),
                     ),
