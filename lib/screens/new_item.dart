@@ -52,7 +52,7 @@ class _NewItemState extends State<NewItem> {
           'title': _enteredTitle,
           'note': _enteredNote,
           'imageUrl': imageUrl,
-          'createdAt': Timestamp.now(),
+          'createdAt': DateTime.now(),
         });
 
         Navigator.of(context).pop(); // Menutup form setelah data disimpan
@@ -285,10 +285,12 @@ class _NewItemState extends State<NewItem> {
                       onPressed: () {
                         _saveItem(
                           NotesModel(
-                              id: DateTime.now().toString(),
-                              title: _enteredTitle,
-                              txt: _enteredTitle,
-                              imageUrl: imageUrl),
+                            id: DateTime.now().toString(),
+                            title: _enteredTitle,
+                            note: _enteredTitle,
+                            imageUrl: imageUrl,
+                            createdAt: DateTime.now(),
+                          ),
                         );
                       },
                       child: const Text('Submit'),
