@@ -9,7 +9,9 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   AppConfig.create(
-      appName: "Notilo Dev", primaryColor: Colors.green, flavor: Flavor.dev);
+    appName: "Notilo Dev",
+    flavor: Flavor.dev,
+  );
   runApp(const MyApp());
 }
 
@@ -18,9 +20,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: true,
-      home: LoginScreen(),
+      theme: ThemeData.light().copyWith(
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: const Color.fromARGB(255, 123, 2, 163),
+          brightness: Brightness.light,
+          // surface: Color.fromARGB(255, 0, 136, 255),
+        ),
+      ),
+      home: const LoginScreen(),
     );
   }
 }

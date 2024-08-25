@@ -10,7 +10,6 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   AppConfig.create(
     appName: "Notilo",
-    primaryColor: Colors.blue,
     flavor: Flavor.prod,
   );
   runApp(const MyApp());

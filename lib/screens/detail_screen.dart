@@ -1,27 +1,62 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:image_network/image_network.dart';
+import 'package:notilo/screens/new_item.dart';
 
-class DetailScreen extends StatelessWidget {
-  const DetailScreen(
+import '../widgets/back_button_custom.dart';
+
+class DetailScreen extends StatefulWidget {
+  DetailScreen(
       {super.key,
       required this.title,
-      required this.txt,
+      required this.note,
       required this.imageUrl,
-      required this.height,
-      required this.width});
+      this.height,
+      this.width,
+      required this.documentId});
 
-  final String title;
-  final String txt;
-  final String imageUrl;
-  final double height;
-  final double width;
+  String title;
+  String note;
+  String imageUrl;
+  final double? height;
+  final double? width;
+  final String documentId;
+
+  @override
+  State<DetailScreen> createState() => _DetailScreenState();
+}
+
+class _DetailScreenState extends State<DetailScreen> {
+  void _goToEditScreen() async {
+    final result = await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => NewItem(
+          isEditing: true,
+          currentTitle: widget.title,
+          currentNote: widget.note,
+          height: widget.height,
+          width: widget.width,
+          currentImageUrl: widget.imageUrl,
+          documentId: widget.documentId,
+        ),
+      ),
+    );
+    if (result != null) {
+      setState(() {
+        widget.title = result['title'];
+        widget.note = result['note'];
+        widget.imageUrl = result['imageUrl'];
+      });
+    }
+  }
 
   Widget handleImagePlatform(
       String imageUrl, double width, double height, Icon icon, Color color) {
     if (imageUrl.isNotEmpty) {
       return kIsWeb
           ? ImageNetwork(
+              key: ValueKey(imageUrl),
               fitWeb: BoxFitWeb.contain,
               image: imageUrl,
               height: height,
@@ -49,20 +84,28 @@ class DetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Detail catatan'),
-        actions: [TextButton(onPressed: () {}, child: const Text('Edit'))],
+        leading: const BackButtonCustom(),
+        elevation: 0,
+        actions: [
+          TextButton(
+            onPressed: _goToEditScreen,
+            child: const Text('Edit'),
+          )
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(10.0),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Expanded area for scrollable content
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     handleImagePlatform(
-                      imageUrl,
+                      widget.imageUrl,
                       MediaQuery.of(context)
                           .size
                           .width, // Full width of the screen
@@ -73,12 +116,12 @@ class DetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      title,
+                      widget.title,
                       style: Theme.of(context).textTheme.headlineMedium,
                     ),
                     const SizedBox(height: 20),
                     Text(
-                      txt,
+                      widget.note,
                       style: Theme.of(context).textTheme.bodyMedium,
                     ),
                   ],

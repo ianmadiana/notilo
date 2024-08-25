@@ -5,12 +5,31 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:image_network/image_network.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:notilo/models/notes_model.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:notilo/widgets/back_button_custom.dart';
 
 class NewItem extends StatefulWidget {
-  const NewItem({super.key});
+  const NewItem({
+    super.key,
+    this.currentTitle,
+    this.currentNote,
+    this.currentImageUrl,
+    required this.isEditing,
+    this.height,
+    this.width,
+    this.documentId,
+  });
+
+  final String? currentTitle;
+  final String? currentNote;
+  final String? currentImageUrl;
+  final bool isEditing;
+  final double? height;
+  final double? width;
+  final String? documentId;
 
   @override
   State<NewItem> createState() => _NewItemState();
@@ -30,6 +49,16 @@ class _NewItemState extends State<NewItem> {
   Uint8List? _webImageBytes;
   late String _fileName;
 
+  @override
+  void initState() {
+    if (widget.isEditing && widget.currentImageUrl != null) {
+      imageUrl = widget.currentImageUrl!;
+      _enteredTitle = widget.currentTitle!;
+      _enteredNote = widget.currentNote!;
+    }
+    super.initState();
+  }
+
   // SIMPAN DATA FORM KE FIREBASE
   Future<void> _saveItem(NotesModel note) async {
     if (_formKey.currentState!.validate()) {
@@ -44,19 +73,42 @@ class _NewItemState extends State<NewItem> {
           imageUrl = await _uploadImageToFirebase(fileName);
         }
 
-        await FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .collection('notes')
-            .add({
-          'id': Timestamp.now().toString(),
-          'title': _enteredTitle,
-          'note': _enteredNote,
-          'imageUrl': imageUrl,
-          'createdAt': DateTime.now(),
-        });
+        if (widget.isEditing) {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .collection('notes')
+              .doc(widget.documentId)
+              .update({
+            'title': _enteredTitle,
+            'note': _enteredNote,
+            'imageUrl': imageUrl,
+            'createdAt': DateTime.now(),
+          });
+        } else {
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .collection('notes')
+              .add(
+            {
+              'id': Timestamp.now().toString(),
+              'title': _enteredTitle,
+              'note': _enteredNote,
+              'imageUrl': imageUrl,
+              'createdAt': DateTime.now(),
+            },
+          );
+        }
 
-        Navigator.of(context).pop(); // Menutup form setelah data disimpan
+        Navigator.pop(
+          context,
+          {
+            'title': _enteredTitle,
+            'note': _enteredNote,
+            'imageUrl': imageUrl,
+          },
+        );
       } catch (e) {
         print('Error saving to Firestore: $e');
       }
@@ -119,86 +171,107 @@ class _NewItemState extends State<NewItem> {
     }
   }
 
+  _buildImageFromUrl(String imageUrl) {
+    return Card(
+      child: Column(
+        children: [
+          ImageNetwork(
+            fitWeb: BoxFitWeb.scaleDown,
+            image: imageUrl,
+            height: widget.height!,
+            width: widget.width!,
+            onLoading: const CircularProgressIndicator(),
+            onError: const Icon(
+              Icons.error,
+              color: Colors.red,
+            ),
+          ),
+          const SizedBox(height: 5),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text('Change image'),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _webImageBytes = null;
+                    });
+                  },
+                  icon: const Icon(Icons.delete, color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _buildImageFromWeb() {
+    return Card(
+      child: Column(
+        children: [
+          Image.memory(_webImageBytes!),
+          const SizedBox(height: 5),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(_fileName.replaceAll('[', '').replaceAll(']', '')),
+                IconButton(
+                  onPressed: () {
+                    setState(() {
+                      _webImageBytes = null;
+                    });
+                  },
+                  icon: const Icon(Icons.delete, color: Colors.black),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  _buildImageFromAndroid() {
+    return Column(
+      children: [
+        Image.file(_imageFile!),
+        const SizedBox(height: 5),
+        IconButton(
+            onPressed: () async {
+              await _imageFile!.delete();
+              setState(() {
+                _imageFile = null;
+              });
+            },
+            icon: const Icon(Icons.delete))
+      ],
+    );
+  }
+
   // SHOW IMAGE PREVIEW
   _imagePreview() {
     if (kIsWeb) {
-      return _webImageBytes == null
-          ? const SizedBox(child: Text('Image here'))
-          : Card(
-              child: Column(
-                children: [
-                  Image.memory(_webImageBytes!),
-                  const SizedBox(height: 5),
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(_fileName.replaceAll('[', '').replaceAll(']', '')),
-                        IconButton(
-                            onPressed: () {
-                              setState(() {
-                                _webImageBytes = null;
-                              });
-                            },
-                            icon: const Icon(
-                              Icons.delete,
-                              color: Colors.black,
-                            ))
-                      ],
-                    ),
-                  )
-                ],
-              ),
-            );
-
-      // Stack(
-      //     alignment: AlignmentDirectional.bottomEnd,
-      //     children: [
-      //       Image.memory(_webImageBytes!),
-      //       IconButton(
-      //           onPressed: () {
-      //             setState(() {
-      //               _webImageBytes = null;
-      //             });
-      //           },
-      //           icon: const Icon(
-      //             Icons.delete,
-      //             color: Colors.black,
-      //           ))
-      //     ],
-      //   );
-
-      // Column(
-      //     children: [
-      //       Image.memory(_webImageBytes!),
-      //       const SizedBox(height: 5),
-      //       IconButton(
-      //           onPressed: () {
-      //             setState(() {
-      //               _webImageBytes = null;
-      //             });
-      //           },
-      //           icon: const Icon(Icons.delete))
-      //     ],
-      //   );
+      if (_webImageBytes != null) {
+        return _buildImageFromWeb();
+      } else if (imageUrl.isNotEmpty) {
+        return _buildImageFromUrl(imageUrl);
+      } else {
+        return const SizedBox();
+      }
     } else if (Platform.isAndroid) {
-      return _imageFile == null || _imageFile!.path.isEmpty
-          ? const SizedBox(child: Text('Image here'))
-          : Column(
-              children: [
-                Image.file(_imageFile!),
-                const SizedBox(height: 5),
-                IconButton(
-                    onPressed: () async {
-                      await _imageFile!.delete();
-                      setState(() {
-                        _imageFile = null;
-                      });
-                    },
-                    icon: const Icon(Icons.delete))
-              ],
-            );
+      if (_imageFile != null && _imageFile!.path.isNotEmpty) {
+        return _buildImageFromAndroid();
+      } else if (imageUrl.isNotEmpty) {
+        return _buildImageFromUrl(imageUrl);
+      } else {
+        return const SizedBox();
+      }
     } else {
       return const SizedBox(
           child: Text('Image display not supported on this platform'));
@@ -233,13 +306,17 @@ class _NewItemState extends State<NewItem> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: IconButton.filled(
-          icon: const Icon(
-            Icons.arrow_back,
-            color: Colors.white,
+        automaticallyImplyLeading: false,
+        leading: const BackButtonCustom(),
+        title: const Text('Add a new note'),
+        actions: [
+          IconButton(
+            onPressed: () {
+              _handleFileUpload();
+            },
+            icon: const Icon(Icons.upload_file_rounded),
           ),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(20),
@@ -250,26 +327,13 @@ class _NewItemState extends State<NewItem> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Add a new note',
-                      style: Theme.of(context).textTheme.titleLarge,
-                    ),
-                    IconButton(
-                        onPressed: () {
-                          _handleFileUpload();
-                        },
-                        icon: const Icon(Icons.upload_file_rounded)),
-                  ],
-                ),
-
                 _imagePreview(),
 
                 const SizedBox(height: 20),
                 // TITLE
                 TextFormField(
+                  initialValue: widget.currentTitle,
+                  maxLength: 50,
                   decoration: InputDecoration(
                     filled: true,
                     hintText: 'Input title here...',
@@ -298,7 +362,7 @@ class _NewItemState extends State<NewItem> {
                 const SizedBox(height: 20),
                 // TEXT
                 TextFormField(
-                  // maxLength: 50,
+                  initialValue: widget.currentNote,
                   maxLines: null,
                   decoration: InputDecoration(
                     filled: true,

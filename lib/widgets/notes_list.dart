@@ -55,15 +55,18 @@ class _NotesListState extends State<NotesList> {
         final String imageUrl = note['imageUrl'];
         // String fileName = note['id'];
         void gotToDetailScreen() {
-          Navigator.of(context).push(MaterialPageRoute(
-            builder: (context) => DetailScreen(
-              title: note['title'],
-              txt: note['note'],
-              imageUrl: note['imageUrl'],
-              height: widget.height,
-              width: widget.width,
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => DetailScreen(
+                title: note['title'],
+                note: note['note'],
+                imageUrl: note['imageUrl'],
+                height: widget.height,
+                width: widget.width,
+                documentId: note.id,
+              ),
             ),
-          ));
+          );
         }
 
         return Dismissible(
@@ -99,7 +102,6 @@ class _NotesListState extends State<NotesList> {
                 const SnackBar(content: Text('Note deleted')),
               );
             } catch (e) {
-              print(e);
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text('Failed to delete ${note['title']}')),
               );
@@ -136,7 +138,7 @@ class _NotesListState extends State<NotesList> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(note['title'],
-                              style: Theme.of(context).textTheme.headlineSmall),
+                              style: Theme.of(context).textTheme.titleMedium),
                           const SizedBox(height: 5),
                           Text(
                             note['note'],

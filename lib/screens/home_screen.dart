@@ -74,7 +74,11 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(
-            context, MaterialPageRoute(builder: (context) => const NewItem())),
+            context,
+            MaterialPageRoute(
+                builder: (context) => const NewItem(
+                      isEditing: false,
+                    ))),
         child: const Icon(Icons.add),
       ),
     );
