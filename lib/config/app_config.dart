@@ -13,13 +13,13 @@ class AppConfig {
   factory AppConfig.create({
     String appName = "",
     // String baseUrl = "",
-    MaterialColor primaryColor = Colors.blue,
+    // MaterialColor primaryColor = Colors.blue,
     Flavor flavor = Flavor.dev,
   }) {
     return shared = AppConfig(
       appName,
       // baseUrl,
-      primaryColor,
+      // primaryColor,
       flavor,
     );
   }
@@ -27,7 +27,7 @@ class AppConfig {
   AppConfig(
     this.appName,
     // this.baseUrl,
-    this.primaryColor,
+    // this.primaryColor,
     this.flavor,
   );
 }
