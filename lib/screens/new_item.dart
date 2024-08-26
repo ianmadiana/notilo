@@ -117,7 +117,6 @@ class _NewItemState extends State<NewItem> {
 
   void _resetItem() {
     _formKey.currentState!.reset();
-
     setState(() {
       _webImageBytes = null;
       _imageFile = null;
@@ -343,12 +342,7 @@ class _NewItemState extends State<NewItem> {
                     ),
                   ),
                   validator: (value) {
-                    if (
-                        // value == null ||
-                        //   value.isEmpty ||
-                        //   value.trim().length <= 1 ||
-                        value!.trim().length > 50) {
-                      // return 'Must be between 1 and 50 characters';
+                    if (value!.trim().length > 50) {
                       return 'Must be between 1 and 50 characters';
                     }
 
@@ -372,18 +366,6 @@ class _NewItemState extends State<NewItem> {
                       borderRadius: BorderRadius.circular(20),
                     ),
                   ),
-                  // validator: (value) {
-                  //   if (value == null ||
-                  //       value.isEmpty ||
-                  //       value.trim().length <= 1 ||
-                  //       value.trim().length > 50) {
-                  //     // return 'Must be between 1 and 50 characters';
-                  //     return 'Must be between 1 and 50 characters';
-                  //   }
-
-                  //   return null;
-                  // },
-                  // onSaved: (newValue) => _enteredNote = newValue!,
                   onSaved: (newValue) {
                     _enteredNote = newValue!;
                     if (kDebugMode) {
