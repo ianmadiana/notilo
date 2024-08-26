@@ -52,7 +52,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           centerTitle: true,
-          // widget text untuk menampilkan teks
           title: const Text(
             "Notilo",
             style: TextStyle(color: Colors.black),
@@ -60,10 +59,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
           elevation: 0,
           backgroundColor: Colors.white,
         ),
-        // widget listview agar halaman bisa di-scroll
         body: ListView(
           children: [
-            // widget kolom untuk membungkus gambar dan input text email dan password
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,7 +72,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     child: Icon(Icons.abc_outlined),
                   ),
                 ),
-                // widget container untuk membungkus widget text "Login"
                 Container(
                   padding: const EdgeInsets.all(20),
                   child: const Text(
@@ -85,7 +81,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20),
-                  // widget textfield untuk memasukkan input email
                   child: Form(
                     key: _formKey,
                     child: Column(

@@ -106,11 +106,8 @@ class _DetailScreenState extends State<DetailScreen> {
                   children: [
                     handleImagePlatform(
                       widget.imageUrl,
-                      MediaQuery.of(context)
-                          .size
-                          .width, // Full width of the screen
-                      MediaQuery.of(context).size.height *
-                          0.4, // 40% of the screen height
+                      MediaQuery.of(context).size.width,
+                      MediaQuery.of(context).size.height * 0.4,
                       const Icon(Icons.error),
                       Colors.red,
                     ),
@@ -128,7 +125,7 @@ class _DetailScreenState extends State<DetailScreen> {
                 ),
               ),
             ),
-            // Fixed bottom column, centered
+            // Time
             const SizedBox(height: 20),
             Center(
               child: Column(

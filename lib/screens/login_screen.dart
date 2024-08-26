@@ -2,9 +2,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:notilo/config/app_config.dart';
-import 'package:notilo/main_dev.dart';
 import 'package:notilo/screens/home_screen.dart';
 
+import '../widgets/app_icon.dart';
+import '../widgets/wave_bg.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -68,7 +69,6 @@ class _LoginScreenState extends State<LoginScreen> {
         backgroundColor: Colors.white,
         appBar: AppBar(
           centerTitle: true,
-          // widget text untuk menampilkan teks
           title: Text(
             AppConfig.shared.appName,
             style: const TextStyle(color: Colors.black),
@@ -76,148 +76,148 @@ class _LoginScreenState extends State<LoginScreen> {
           elevation: 0,
           backgroundColor: Colors.white,
         ),
-        // widget listview agar halaman bisa di-scroll
-        body: ListView(
+        body: Stack(
           children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+            Container(
+              color: Theme.of(context).colorScheme.onSecondary,
+            ),
+            //! clipPath
+            const WaveBackground(),
+            ListView(
               children: [
-                Center(
-                  // widget gambar
-                  child: SizedBox(
-                    height: MediaQuery.of(context).size.height * 0.2,
-                    child: Icon(Icons.abc_outlined),
-                  ),
-                ),
-                // widget container untuk membungkus widget text "Login"
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  child: const Text(
-                    "Login",
-                    style: TextStyle(fontFamily: 'ConcertOne', fontSize: 30),
-                  ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: Form(
-                    autovalidateMode: AutovalidateMode.onUnfocus,
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        // EMAIL
-                        TextFormField(
-                          controller: emailController,
-                          keyboardType: TextInputType.emailAddress,
-                          decoration: const InputDecoration(
-                            contentPadding:
-                                EdgeInsetsDirectional.symmetric(horizontal: 10),
-                            prefixIcon: Icon(Icons.alternate_email_rounded),
-                            labelText: "Email",
-                            hintText: "Email ID",
-                          ),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Please enter your email";
-                            }
-                            return null;
-                          },
-                          onChanged: (value) => setState(
-                            () {
-                              _email = value;
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        // PASSWORD
-                        TextFormField(
-                          controller: passController,
-                          keyboardType: TextInputType.text,
-                          obscureText: _obscureText,
-                          decoration: InputDecoration(
-                            contentPadding:
-                                const EdgeInsetsDirectional.symmetric(
-                                    horizontal: 10),
-                            prefixIcon: const Icon(Icons.lock),
-                            labelText: "Password",
-                            hintText: "password",
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                _obscureText
-                                    ? Icons.visibility
-                                    : Icons.visibility_off,
-                              ),
-                              onPressed: _toggleObscureText,
-                            ),
-                          ),
-                          validator: (value) => value!.isEmpty
-                              ? "Please enter your password"
-                              : null,
-                          onChanged: (value) => setState(
-                            () {
-                              _password = value;
-                            },
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: ElevatedButton(
-                            style: ButtonStyle(
-                              backgroundColor: WidgetStateProperty.all(
-                                  Theme.of(context).primaryColor),
-                            ),
-                            onPressed: () {
-                              // if (AppConfig.shared.flavor == Flavor.dev) {
-                              //   _autoLogin();
-                              // } else if (AppConfig.shared.flavor ==
-                              //     Flavor.prod) {
-                              //   if (_formKey.currentState!.validate()) {
-                              //     _signIn();
-                              //   }
-                              // }
-
-                              AppConfig.shared.flavor == Flavor.dev
-                                  ? _autoLogin()
-                                  : _signIn();
-
-                              // s
-                            },
-                            child: const Text(
-                              "Sign In",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 5),
-                        SizedBox(
-                          width: MediaQuery.of(context).size.width,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) =>
-                                        const RegisterScreen(),
-                                  ));
-                            },
-                            child: Text(
-                              "Register",
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                            ),
-                          ),
-                        )
-                      ],
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      // widget gambar
+                      child: SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.2,
+                        child: const AppIcon(),
+                      ),
                     ),
-                  ),
+                    // widget container untuk membungkus widget text "Login"
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      child: const Text(
+                        "Login",
+                        style:
+                            TextStyle(fontFamily: 'ConcertOne', fontSize: 30),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.all(20),
+                      child: Form(
+                        autovalidateMode: AutovalidateMode.onUnfocus,
+                        key: _formKey,
+                        child: Column(
+                          children: [
+                            // EMAIL
+                            TextFormField(
+                              controller: emailController,
+                              keyboardType: TextInputType.emailAddress,
+                              decoration: const InputDecoration(
+                                contentPadding: EdgeInsetsDirectional.symmetric(
+                                    horizontal: 10),
+                                prefixIcon: Icon(Icons.alternate_email_rounded),
+                                labelText: "Email",
+                                hintText: "Email ID",
+                              ),
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Please enter your email";
+                                }
+                                return null;
+                              },
+                              onChanged: (value) => setState(
+                                () {
+                                  _email = value;
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            // PASSWORD
+                            TextFormField(
+                              controller: passController,
+                              keyboardType: TextInputType.text,
+                              obscureText: _obscureText,
+                              decoration: InputDecoration(
+                                contentPadding:
+                                    const EdgeInsetsDirectional.symmetric(
+                                        horizontal: 10),
+                                prefixIcon: const Icon(Icons.lock),
+                                labelText: "Password",
+                                hintText: "password",
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    _obscureText
+                                        ? Icons.visibility
+                                        : Icons.visibility_off,
+                                  ),
+                                  onPressed: _toggleObscureText,
+                                ),
+                              ),
+                              validator: (value) => value!.isEmpty
+                                  ? "Please enter your password"
+                                  : null,
+                              onChanged: (value) => setState(
+                                () {
+                                  _password = value;
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: 20),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              child: ElevatedButton(
+                                style: ButtonStyle(
+                                  backgroundColor: WidgetStateProperty.all(
+                                      Theme.of(context).primaryColor),
+                                ),
+                                onPressed: () {
+                                  AppConfig.shared.flavor == Flavor.dev
+                                      ? _autoLogin()
+                                      : _signIn();
+                                },
+                                child: const Text(
+                                  "Sign In",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 5),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) =>
+                                          const RegisterScreen(),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  "Register",
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color:
+                                        Theme.of(context).colorScheme.primary,
+                                  ),
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),

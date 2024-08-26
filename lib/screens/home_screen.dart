@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:notilo/config/app_config.dart';
 import 'package:notilo/screens/login_screen.dart';
+import 'package:notilo/widgets/wave_bg.dart';
 
 import '../widgets/notes_list.dart';
 import 'new_item.dart';
@@ -43,34 +44,41 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: StreamBuilder(
-        stream: FirebaseFirestore.instance
-            .collection('users')
-            .doc(userId)
-            .collection('notes')
-            .orderBy('createdAt', descending: true)
-            .snapshots(),
-        builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
-          }
-          if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-            return const Center(
-              child: Text('Notes empty!'),
-            );
-          }
-          final notesDocs = snapshot.data!.docs;
+      body: Stack(
+        children: [
+          Container(
+            color: Theme.of(context).colorScheme.onSecondary,
+          ),
+          const WaveBackground(),
+          StreamBuilder(
+            stream: FirebaseFirestore.instance
+                .collection('users')
+                .doc(userId)
+                .collection('notes')
+                .orderBy('createdAt', descending: true)
+                .snapshots(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+              if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                return const Center(
+                  child: Text('Notes empty!'),
+                );
+              }
+              final notesDocs = snapshot.data!.docs;
 
-          return NotesList(
-            notesDocs: notesDocs,
-            // imgUrl: notesDocs[0]['imageUrl'],
-            height: height,
-            width: width,
-            userId: userId,
-          );
-        },
+              return NotesList(
+                notesDocs: notesDocs,
+                height: height,
+                width: width,
+                userId: userId,
+              );
+            },
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => Navigator.push(
