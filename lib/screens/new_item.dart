@@ -388,7 +388,7 @@ class _NewItemState extends State<NewItem> {
                           NotesModel(
                             id: DateTime.now().toString(),
                             title: _enteredTitle,
-                            note: _enteredTitle,
+                            note: _enteredNote,
                             imageUrl: imageUrl,
                             createdAt: DateTime.now(),
                           ),

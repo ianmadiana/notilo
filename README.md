@@ -8,3 +8,6 @@ Notilo is a versatile note-taking application developed using Flutter, designed 
 - **Register**: Easily create a new account to start using Notilo.
 - **Save Notes to Firebase**: Store your notes securely in the cloud using Firebase.
 - **Upload Images**: Attach images to your notes, enhancing your note-taking experience.
+
+![home](/screenshots/home.png)
+It has many bugs, need to fix.
